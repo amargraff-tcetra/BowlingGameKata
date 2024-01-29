@@ -9,6 +9,7 @@ namespace BowlingGameKata.Models
     public class Frame
     {
         public List<int> Rolls { get; set; } = new List<int>();
-        public int Score { get => Rolls.Sum(); }
+        public int Score { get => Rolls.Sum() + Bonus; }
+        public int Bonus { get; set; }
     }
 }
