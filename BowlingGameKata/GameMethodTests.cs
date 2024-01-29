@@ -10,11 +10,20 @@ namespace BowlingGameKata
     public class GameMethodTests
     {
         [Fact]
-        public void RollAndScoreTest()
+        public void RollTest()
         {
             var game = new Game();
             game.Roll(5);
             Assert.Equal(5, game.Score());
+        }
+
+        [Fact]
+        public void NewFrameTest()
+        {
+            Game game = new Game();
+            game.Roll(5);
+            game.Roll(3);
+            Assert.Single(game.Frames);
         }
     }
 }

@@ -8,7 +8,11 @@ namespace BowlingGameKata.Models
 {
     public class Game
     {
+        private static readonly int PIN_COUNT = 10;
+        private static readonly int ALLOWED_ROLLS = 2;
         private int _score { get; set; }
+        public List<Frame> Frames { get; set; } = new List<Frame>();
+        private Frame CurrentFrame { get; set; } = new Frame();
 
         public Game()
         {
@@ -17,12 +21,23 @@ namespace BowlingGameKata.Models
 
         public void Roll(int pins)
         {
-            _score += pins;
+            if (CurrentFrame.Rolls.Count < ALLOWED_ROLLS && CurrentFrame.Score < PIN_COUNT)
+            {
+                CurrentFrame.Rolls.Add(pins);
+                if (CurrentFrame.Rolls.Count == ALLOWED_ROLLS || CurrentFrame.Score == PIN_COUNT)
+                {
+                    Frames.Add(CurrentFrame);
+                    CurrentFrame = new Frame();
+                }
+            }
+            else {
+                CurrentFrame.Rolls.Add(pins);
+            }
         }
 
         public int Score()
         {
-            return _score;
+            return _score + CurrentFrame.Score;
         }
     }
 }
