@@ -29,18 +29,20 @@ namespace BowlingGameKata.Models
             foreach(var r in Rolls.Select((r,i) => new { roll = r, index = i}))
             {
                 CurrentFrame.Rolls.Add(r.roll);
+
+                //Check if frame complete
                 if (CurrentFrame.Rolls.Sum() == PIN_COUNT || CurrentFrame.Rolls.Count == ALLOWED_ROLLS)
                 {
                     //Spare
-                    if (CurrentFrame.Rolls.Count == ALLOWED_ROLLS && CurrentFrame.Rolls.Sum() == PIN_COUNT)
+                    if (CurrentFrame.Rolls.Sum() == PIN_COUNT && CurrentFrame.Rolls.Count == ALLOWED_ROLLS)
                     {
-                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(r.index + 1);
+                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(r.index + 1);//Next ball counts as bonus
                     }
 
                     //Strike
-                    if (CurrentFrame.Rolls.Count < ALLOWED_ROLLS && CurrentFrame.Rolls.Sum() == PIN_COUNT)
+                    if (CurrentFrame.Rolls.Sum() == PIN_COUNT && CurrentFrame.Rolls.Count < ALLOWED_ROLLS)
                     {
-                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(r.index + 1) + Rolls.ElementAtOrDefault(r.index + 2);
+                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(r.index + 1) + Rolls.ElementAtOrDefault(r.index + 2);//Next two balls count as bonus
                     }
 
                     Frames.Add(CurrentFrame);
