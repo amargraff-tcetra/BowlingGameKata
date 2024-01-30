@@ -49,5 +49,67 @@ namespace BowlingGameKata
             Assert.Equal(10, game.Frames.Count);
         }
 
+        [Fact]
+        public void TenthFrameExtraRolls()
+        {
+            var game = new Game();
+            game.Roll(0);//Frame 1
+            game.Roll(0);
+
+            game.Roll(0);//Frame 2
+            game.Roll(0);
+
+            game.Roll(0);//Frame 3
+            game.Roll(0);
+
+            game.Roll(0);//Frame 4
+            game.Roll(0);
+
+            game.Roll(0);//Frame 5
+            game.Roll(0);
+
+            game.Roll(0);//Frame 6
+            game.Roll(0);
+
+            game.Roll(0);//Frame 7
+            game.Roll(0);
+
+            game.Roll(0);//Frame 8
+            game.Roll(0);
+
+            game.Roll(0);//Frame 9
+            game.Roll(0);
+
+            game.Roll(10);//Frame 10
+            game.Roll(10);
+            game.Roll(10);
+
+            _ = game.Score();
+            Assert.Equal(30, game.Score());
+        }        
+        
+        [Fact]
+        public void PerfectGameTest()
+        {
+            var game = new Game();
+            game.Roll(10);//Frame 1
+            game.Roll(10);//Frame 2
+            game.Roll(10);//Frame 3
+            game.Roll(10);//Frame 4
+            game.Roll(10);//Frame 5
+            game.Roll(10);//Frame 6
+            game.Roll(10);//Frame 7
+            game.Roll(10);//Frame 8
+            game.Roll(10);//Frame 9
+
+            game.Roll(10);//Frame 10
+            game.Roll(10);
+            game.Roll(10);
+
+            _ = game.Score();
+            Assert.Equal(300, game.Score());
+            Assert.Equal(10, game.Frames.Count);
+        }
+
     }
 }

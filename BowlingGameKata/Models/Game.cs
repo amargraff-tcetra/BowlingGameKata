@@ -12,10 +12,10 @@ namespace BowlingGameKata.Models
     {
         private static readonly int PIN_COUNT = 10;
         private static readonly int ALLOWED_ROLLS = 2;
+        private static readonly int ALLOWED_TENTH_FRAME_ROLLS = 3;
         private static readonly int ALLOWED_FRAMES = 10;
         public List<int> Rolls { get; set; }= new List<int>();
         public List<Frame> Frames { get; set; } = new List<Frame>();
-        private Frame CurrentFrame { get; set; } = new Frame();
 
         public Game()
         {
@@ -34,30 +34,38 @@ namespace BowlingGameKata.Models
         {
             //Reset
             Frames = new List<Frame>();
-            CurrentFrame = new Frame();
+            var currentFrame = new Frame();
             var finalScore = 0;
 
             foreach(var roll in Rolls.Select((r,i) => new { value = r, index = i}))
             {
-                CurrentFrame.Rolls.Add(roll.value);
+                currentFrame.Rolls.Add(roll.value);
 
                 //Frame complete
-                if (CurrentFrame.Rolls.Sum() == PIN_COUNT || CurrentFrame.Rolls.Count == ALLOWED_ROLLS)
+                if (currentFrame.Rolls.Sum() == PIN_COUNT || currentFrame.Rolls.Count == ALLOWED_ROLLS || Frames.Count + 1 == ALLOWED_FRAMES)
                 {
+                    var tenthFrameBonusRoll = Frames.Count + 1 == ALLOWED_FRAMES;
+                    tenthFrameBonusRoll &= currentFrame.Rolls.Take(2).Sum() <= PIN_COUNT;
+                    tenthFrameBonusRoll &= currentFrame.Rolls.Count < ALLOWED_TENTH_FRAME_ROLLS;
+
                     //Spare
-                    if (CurrentFrame.Rolls.Sum() == PIN_COUNT && CurrentFrame.Rolls.Count == ALLOWED_ROLLS)
+                    if ((currentFrame.Rolls.Sum() == PIN_COUNT && currentFrame.Rolls.Count == ALLOWED_ROLLS) || tenthFrameBonusRoll)
                     {
-                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(roll.index + 1);//Next roll counts as bonus
+                        currentFrame.Bonus = Rolls.ElementAtOrDefault(roll.index + 1);//Next roll counts as bonus
                     }
 
                     //Strike
-                    if (CurrentFrame.Rolls.Sum() == PIN_COUNT && CurrentFrame.Rolls.Count < ALLOWED_ROLLS)
+                    if ((currentFrame.Rolls.Sum() == PIN_COUNT && currentFrame.Rolls.Count < ALLOWED_ROLLS) || tenthFrameBonusRoll)
                     {
-                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(roll.index + 1) + Rolls.ElementAtOrDefault(roll.index + 2);//Next two rolls count as bonus
+                        currentFrame.Bonus = Rolls.ElementAtOrDefault(roll.index + 1) + Rolls.ElementAtOrDefault(roll.index + 2);//Next two rolls count as bonus
                     }
 
-                    Frames.Add(CurrentFrame);
-                    CurrentFrame = new Frame();
+                    //Finish Frame
+                    if (!tenthFrameBonusRoll)
+                    {
+                        Frames.Add(currentFrame);
+                        currentFrame = new Frame();
+                    }
                 }
             }
 
@@ -67,7 +75,7 @@ namespace BowlingGameKata.Models
             //Unfinished Game
             if (Frames.Count < ALLOWED_FRAMES)
             {
-                finalScore += CurrentFrame.Score;
+                finalScore += currentFrame.Score;
             }
 
             return finalScore;
