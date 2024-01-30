@@ -18,5 +18,15 @@ namespace BowlingGameKata
             game.Roll(7);
             Assert.Equal(24, game.Score());
         }
+
+        [Fact]
+        public void StrikeBonusTest()
+        {
+            Game game = new Game();
+            game.Roll(10);
+            game.Roll(3);
+            game.Roll(5);
+            Assert.Equal(26, game.Score());
+        }
     }
 }

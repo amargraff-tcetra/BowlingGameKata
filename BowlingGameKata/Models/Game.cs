@@ -10,6 +10,7 @@ namespace BowlingGameKata.Models
     {
         private static readonly int PIN_COUNT = 10;
         private static readonly int ALLOWED_ROLLS = 2;
+        public List<int> Rolls { get; set; }= new List<int>();
         public List<Frame> Frames { get; set; } = new List<Frame>();
         private Frame CurrentFrame { get; set; } = new Frame();
 
@@ -19,42 +20,44 @@ namespace BowlingGameKata.Models
 
         public void Roll(int pins)
         {
-            if (CurrentFrame.Rolls.Count < ALLOWED_ROLLS && CurrentFrame.Rolls.Sum() < PIN_COUNT)
-            {
-                CurrentFrame.Rolls.Add(pins);
-
-            }
-
-            if (CurrentFrame.Rolls.Count == ALLOWED_ROLLS || CurrentFrame.Rolls.Sum() == PIN_COUNT)
-            {
-                Frames.Add(CurrentFrame);
-                CurrentFrame = new Frame();
-            }
+            Rolls.Add(pins);
         }
 
         public int Score()
         {
             var finalScore = 0;
-            foreach (var f in Frames.Select((f,i) => new { frame = f, Index = i }))
+            foreach(var r in Rolls.Select((r,i) => new { roll = r, index = i}))
             {
-                //Calculate Bonus
-                if (f.frame.Rolls.Sum() == PIN_COUNT)
+                CurrentFrame.Rolls.Add(r.roll);
+                if (CurrentFrame.Rolls.Sum() == PIN_COUNT || CurrentFrame.Rolls.Count == ALLOWED_ROLLS)
                 {
-                    if(Frames.Count > f.Index + 1) 
-                    { 
-                        f.frame.Bonus = Frames[f.Index + 1].Rolls[0];
-                    }
-                    else
+                    //Spare
+                    if (CurrentFrame.Rolls.Count == ALLOWED_ROLLS && CurrentFrame.Rolls.Sum() == PIN_COUNT)
                     {
-                        f.frame.Bonus = CurrentFrame.Rolls[0];
+                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(r.index + 1);
                     }
-                }
 
-                //Add Frame to FinalScore
-                finalScore += f.frame.Score;
+                    //Strike
+                    if (CurrentFrame.Rolls.Count < ALLOWED_ROLLS && CurrentFrame.Rolls.Sum() == PIN_COUNT)
+                    {
+                        CurrentFrame.Bonus = Rolls.ElementAtOrDefault(r.index + 1) + Rolls.ElementAtOrDefault(r.index + 2);
+                    }
+
+                    Frames.Add(CurrentFrame);
+                    CurrentFrame = new Frame();
+                }
             }
 
-            return finalScore + CurrentFrame.Score;
+            //Total Finished Frames
+            Frames.ForEach(f => finalScore += f.Score);
+
+            //Unfinished Game
+            if (Frames.Count < 10)
+            {
+                finalScore += CurrentFrame.Score;
+            }
+
+            return finalScore;
         }
     }
 }
