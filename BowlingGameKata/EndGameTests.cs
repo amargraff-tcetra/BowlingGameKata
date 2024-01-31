@@ -46,7 +46,7 @@ namespace BowlingGameKata
             game.Roll(3);//Frame 11 (Shouldn't be counted)
             game.Roll(6);
             _ = game.Score();
-            Assert.Equal(10, game.Frames.Count);
+            Assert.Equal(10, game.CompletedFrames.Count);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace BowlingGameKata
 
             _ = game.Score();
             Assert.Equal(300, game.Score());
-            Assert.Equal(10, game.Frames.Count);
+            Assert.Equal(10, game.CompletedFrames.Count);
         } 
         
         [Fact]
@@ -146,9 +146,8 @@ namespace BowlingGameKata
             game.Roll(7);
             game.Roll(5);
 
-            _ = game.Score();
             Assert.Equal(20, game.Score());
-            Assert.Equal(10, game.Frames.Count);
+            Assert.Equal(10, game.CompletedFrames.Count);
         } 
         
         [Fact]
@@ -188,7 +187,7 @@ namespace BowlingGameKata
 
             _ = game.Score();
             Assert.Equal(119, game.Score());
-            Assert.Equal(10, game.Frames.Count);
+            Assert.Equal(10, game.CompletedFrames.Count);
         } 
     }
 }

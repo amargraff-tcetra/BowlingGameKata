@@ -23,7 +23,7 @@ namespace BowlingGameKata
             Game game = new Game();
             game.Roll(5);
             game.Roll(3);
-            Assert.Single(game.Frames);
+            Assert.Single(game.CompletedFrames);
         }
     }
 }

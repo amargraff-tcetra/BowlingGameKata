@@ -6,6 +6,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Formats.Asn1.AsnWriter;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BowlingGameKata.Models
 {
@@ -13,20 +14,15 @@ namespace BowlingGameKata.Models
     {
         private static readonly int PIN_COUNT = 10;
         private static readonly int ALLOWED_ROLLS = 2;
-        private static readonly int ALLOWED_TENTH_FRAME_ROLLS = 3;
         private static readonly int ALLOWED_FRAMES = 10;
-        public List<int> Rolls { get; set; }= new List<int>();
-        public List<Frame> Frames { get; set; } = new List<Frame>();
-
-        public Game()
-        {
-        }
+        public List<Roll> Rolls { get; set; }= new List<Roll>();
+        public List<Frame> CompletedFrames { get; set; } = new List<Frame>();
 
         public void Roll(int pins)
         {
-            if (Frames.Count < ALLOWED_FRAMES)
+            if (CompletedFrames.Count < ALLOWED_FRAMES)
             {
-                Rolls.Add(pins);
+                Rolls.Add(new Roll(Rolls.Count, pins));
             }
             //Running Score
             _ = Score();
@@ -35,49 +31,37 @@ namespace BowlingGameKata.Models
         public int Score()
         {
             //Reset
-            Frames = new List<Frame>();
-            var currentFrame = new Frame();
+            CompletedFrames = new List<Frame>();
+            var currentFrame = new Frame(1);
             var finalScore = 0;
 
-            foreach(var roll in Rolls.Select((r,i) => new { value = r, index = i}))
+            foreach(var roll in Rolls)
             {
-                currentFrame.Rolls.Add(roll.value);
-
-                var spare = currentFrame.Rolls.Count == ALLOWED_ROLLS && currentFrame.Rolls.Take(2).Sum() == PIN_COUNT;
-                var strike = currentFrame.Rolls.Count == 1 && currentFrame.Rolls.Sum() == PIN_COUNT;
-                var tenthFrameBonusRoll = Frames.Count + 1 == ALLOWED_FRAMES && (spare || strike);
+                currentFrame.Rolls.Add(roll);
 
                 //Frame complete
-                if (currentFrame.Rolls.Sum() == PIN_COUNT || currentFrame.Rolls.Count == ALLOWED_ROLLS || tenthFrameBonusRoll)
+                if (currentFrame.IsComplete())
                 {
-                    if (spare)
-                    {
-                        currentFrame.Bonus = Rolls.ElementAtOrDefault(roll.index + 1);//Next roll counts as bonus
-                    }
-                    else if (strike)
-                    {
-                        currentFrame.Bonus = Rolls.ElementAtOrDefault(roll.index + 1) + Rolls.ElementAtOrDefault(roll.index + 2);//Next two rolls count as bonus
-                    }
-
-                    //Finish Frame
-                    if (!tenthFrameBonusRoll)
-                    {
-                        Frames.Add(currentFrame);
-                        currentFrame = new Frame();
-                    }
+                    CalculateBonus(currentFrame);
+                    CompletedFrames.Add(currentFrame);
+                    currentFrame = new Frame(CompletedFrames.Count + 1);
                 }
             }
 
-            //Total Finished Frames
-            Frames.ForEach(f => finalScore += f.Score);
+            CompletedFrames.ForEach(f => finalScore += f.Score);
+            return finalScore += currentFrame.Score;
+        }
 
-            //Unfinished Game
-            if (Frames.Count < ALLOWED_FRAMES)
+        private void CalculateBonus(Frame frame)
+        {
+            if (frame.Rolls.Count >= ALLOWED_ROLLS && frame.Rolls.Take(2).Sum() == PIN_COUNT)//Spare
             {
-                finalScore += currentFrame.Score;
+                frame.Bonus = Rolls.ElementValueAtOrDefault(frame.Rolls[1].Index + 1);//Next roll counts as bonus
             }
-
-            return finalScore;
+            else if (frame.Rolls.Count == 1 && frame.Rolls.Sum() == PIN_COUNT)//Strike
+            {
+                frame.Bonus = Rolls.ElementValueAtOrDefault(frame.Rolls[0].Index + 1) + Rolls.ElementValueAtOrDefault(frame.Rolls[0].Index + 2);//Next two rolls count as bonus
+            }
         }
     }
 }
