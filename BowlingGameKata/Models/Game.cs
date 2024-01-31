@@ -22,7 +22,7 @@ namespace BowlingGameKata.Models
         {
             if (CompletedFrames.Count < ALLOWED_FRAMES)
             {
-                Rolls.Add(new Roll(Rolls.Count, pins));
+                Rolls.Add(new Roll(index: Rolls.Count, value: pins));
             }
             //Running Score
             _ = Score();
